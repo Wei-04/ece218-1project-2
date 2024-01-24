@@ -1,4 +1,4 @@
-/*! @mainpage TO BE INCLUDED****
+/*! @mainpage Automatic Headlight Control System
 * @date Monday, January 24, 2024
 * @authors Louis Rahilly, Weiheng He
 * @section genDesc General Description
