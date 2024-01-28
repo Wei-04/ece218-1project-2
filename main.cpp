@@ -25,14 +25,15 @@
 DigitalIn driverOccupancy(D2); // Object associated driver seat contact
 DigitalIn ignitionButton(BUTTON1); // Object associated with attempted ignition
 DigitalOut ignitionLED(LED2); // Object associated with sucessful igntion
-DigitalOut headlightLED(PE_14); //Object associated with headlights
+DigitalOut headlightLED1(PE_14); //Object associated with headlights
+DigitalOut headlightLED2(PE_15);
 
 AnalogIn potentiometer(A0); //Potentiometer reading, used in selection of headlight mode 
 AnalogIn lightLevel(A2); //Light sensitive resistor reading, used to determine presence of daylight
 
 //=====[Declaration and initialization of public global variables]=============
 
-
+float potentiometerR = 0.0;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -45,9 +46,11 @@ ignitionLED = OFF
 headlightLED = OFF
 */
 
-void engineUpdate(); //controls the engine state, returns the current engine state
+int engineUpdate(); //controls the engine state, returns the current engine state
 
 void headlightsUpdate(); //controls the headlights state based on the headlight mode
+
+void potentiometerOutput(); 
 
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200); // Object associated with the uart process
 
@@ -59,6 +62,8 @@ int main()
     outputsInit();
     while (true) {
         engineUpdate();
+        potentiometerOutput();
+
         }
 }
 
@@ -71,18 +76,35 @@ void inputsInit() {
 
 void outputsInit() {
     ignitionLED = OFF;
-    headlightLED = OFF;
+    headlightLED1 = OFF;
+    headlightLED2 = OFF;
 }
 
-void engineUpdate() {
+int engineUpdate() {
     if (ignitionButton) {
-        uartUsb.write("if\r\n", 4);
         if (driverOccupancy) {
             ignitionLED = ON;
+            return true;
         }
         else {
-            uartUsb.write("else\r\n", 6);
             ignitionLED = OFF;
+            return false;
         }
     }
+    return false;
+}
+
+void headlightsUpdate() {
+    if (engineUpdate()) {
+        uartUsb.write("hi\r\n", 4);
+    }
+}
+
+void potentiometerOutput() {
+    int stringLength;
+    char str[100];
+    potentiometerR = potentiometer.read();
+    sprintf (str, "Potentiometer: %.2f\r\n", potentiometerR);
+    stringLength = strlen(str);
+    uartUsb.write(str, stringLength);
 }
