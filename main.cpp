@@ -11,6 +11,8 @@
 * |:----------:|:-----------------------------------------------|
 * | 01/24/2024 | First version of program |
 * | 01/25/2024 | Added framework for initialization and logic |
+* | 01/28/2024 | Built engineUpdate |
+* | 01/30/2024 | Built headLight function |
 * 
 *
 */
@@ -19,6 +21,15 @@
 
 #include "mbed.h"
 #include "arm_book_lib.h"
+
+//=====[Defines]===============================================================
+
+#define POT_ON                                0.33
+#define POT_OFF                               0.66
+#define DAY                                   0.5
+#define DAYLIGHT_DELAY                        2000
+#define DUSK_DELAY                            1000
+#define TIME_DELAY                            10
 
 //=====[Declaration and initialization of public global objects]===============
 
@@ -46,7 +57,7 @@ ignitionLED = OFF
 headlightLED = OFF
 */
 
-int engineUpdate(); //controls the engine state, returns the current engine state
+bool engineUpdate(); //controls the engine state, returns the current engine state
 
 void headlightsUpdate(); //controls the headlights state based on the headlight mode
 
@@ -63,7 +74,7 @@ int main()
     while (true) {
         engineUpdate();
         potentiometerOutput();
-
+        delay(TIME_DELAY);
         }
 }
 
@@ -80,7 +91,7 @@ void outputsInit() {
     headlightLED2 = OFF;
 }
 
-int engineUpdate() {
+bool engineUpdate() {
     if (ignitionButton) {
         if (driverOccupancy) {
             ignitionLED = ON;
@@ -96,7 +107,25 @@ int engineUpdate() {
 
 void headlightsUpdate() {
     if (engineUpdate()) {
-        uartUsb.write("hi\r\n", 4);
+        if (potentiometer <= POT_ON) {
+            headlightLED1 = ON;
+            headlightLED2 = ON;
+        }
+        else if (potentiometer <= POT_OFF) {
+            headlightLED1 = OFF;
+            headlightLED2 = OFF;
+        }
+        else {
+            if (lightLevel > DAY) { // Daytime arguement
+                headlightLED1 = OFF;
+                headlightLED2 = OFF;               
+            }
+            else {
+                headlightLED1 = ON;
+                headlightLED2 = ON;
+            }
+            
+        }
     }
 }
 
