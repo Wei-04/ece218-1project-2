@@ -74,6 +74,7 @@ int main()
     while (true) {
         engineUpdate();
         potentiometerOutput();
+        headlightsUpdate();
         delay(TIME_DELAY);
         }
 }
