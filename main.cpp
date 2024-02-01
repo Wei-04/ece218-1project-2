@@ -3,7 +3,7 @@
 * @authors Louis Rahilly, Weiheng He
 * @section genDesc General Description
 *
-* This is an implementation of a headlight control system to be used in a 1995 McLaren F1 LM.
+* This is an implementation of a headlight control system to be used in a car.
 * The driver will have the ability to select on, off, or automatic headlights.
 *
 * @section changelog Changelog
@@ -143,6 +143,10 @@ void headlightsUpdate() {
             }
             
         }
+    }
+    else {
+        headlightLED1 = OFF;
+        headlightLED2 = OFF;    
     }
 }
 
