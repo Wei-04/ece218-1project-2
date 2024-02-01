@@ -104,20 +104,27 @@ bool engineUpdate() {
             return false;
         }
     }
-    return false;
+    if (ignitionLED == ON) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 void headlightsUpdate() {
+    potentiometerR = potentiometer.read();
     if (engineUpdate()) {
-        if (potentiometer <= POT_ON) {
+        
+        if (potentiometerR <= POT_ON) {
             headlightLED1 = ON;
             headlightLED2 = ON;
         }
-        else if (potentiometer <= POT_OFF) {
+        else if (potentiometerR < POT_OFF && potentiometerR > POT_ON) {
             headlightLED1 = OFF;
             headlightLED2 = OFF;
         }
-        else {
+        else if (potentiometerR >= POT_OFF) {
             if (lightLevel > DAY) { // Daytime arguement
                 accumulatedTime = accumulatedTime + TIME_DELAY;
                 if (accumulatedTime >= DAYLIGHT_DELAY) {
