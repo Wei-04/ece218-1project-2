@@ -26,7 +26,7 @@
 
 #define POT_ON                                0.33
 #define POT_OFF                               0.66
-#define DAY                                   0.5
+#define DAY                                   0.7
 #define DAYLIGHT_DELAY                        2000
 #define DUSK_DELAY                            1000
 #define TIME_DELAY                            10
