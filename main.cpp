@@ -45,6 +45,7 @@ AnalogIn lightLevel(A2); //Light sensitive resistor reading, used to determine p
 //=====[Declaration and initialization of public global variables]=============
 
 float potentiometerR = 0.0;
+int accumulatedTime = 0;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -118,12 +119,20 @@ void headlightsUpdate() {
         }
         else {
             if (lightLevel > DAY) { // Daytime arguement
-                headlightLED1 = OFF;
-                headlightLED2 = OFF;               
+                accumulatedTime = accumulatedTime + TIME_DELAY;
+                if (accumulatedTime >= DAYLIGHT_DELAY) {
+                    headlightLED1 = OFF;
+                    headlightLED2 = OFF;         
+                    accumulatedTime = 0;   
+                }   
             }
             else {
-                headlightLED1 = ON;
-                headlightLED2 = ON;
+                accumulatedTime = accumulatedTime + TIME_DELAY;
+                if (accumulatedTime >= DUSK_DELAY){
+                    headlightLED1 = ON;
+                    headlightLED2 = ON;
+                    accumulatedTime >= 0;
+                }
             }
             
         }
