@@ -19,17 +19,17 @@
 
 //=====[Libraries]=============================================================
 
-#include "mbed.h"
+#include "mbed.h" //library imports
 #include "arm_book_lib.h"
 
 //=====[Defines]===============================================================
 
-#define POT_ON                                0.33
-#define POT_OFF                               0.66
-#define DAY                                   0.7
-#define DAYLIGHT_DELAY                        2000
-#define DUSK_DELAY                            1000
-#define TIME_DELAY                            10
+#define POT_ON                                0.33 //less than 0.33 means headlights on
+#define POT_OFF                               0.66 //between 0.33 and 0.66 meansheadlights off
+#define DAY                                   0.7 //analog input threshold which determines daylight
+#define DAYLIGHT_DELAY                        2000 //delay for tuning off
+#define DUSK_DELAY                            1000 //delay for turning on
+#define TIME_DELAY                            10 //time interval
 
 //=====[Declaration and initialization of public global objects]===============
 
@@ -44,8 +44,8 @@ AnalogIn lightLevel(A2); //Light sensitive resistor reading, used to determine p
 
 //=====[Declaration and initialization of public global variables]=============
 
-float potentiometerR = 0.0;
-int accumulatedTime = 0;
+float potentiometerR = 0.0; //keeps track of potentiometer reading
+int accumulatedTime = 0; //keeps track of time interval
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -62,49 +62,49 @@ bool engineUpdate(); //controls the engine state, returns the current engine sta
 
 void headlightsUpdate(); //controls the headlights state based on the headlight mode
 
-void potentiometerOutput(); 
+void potentiometerOutput(); //reads potentiometer output
 
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200); // Object associated with the uart process
 
 //=====[Main function, the program entry point after power on or reset]========
 
-int main()
+int main() //main function loop
 {
-    inputsInit();
+    inputsInit(); //initializations
     outputsInit();
     while (true) {
-        engineUpdate();
-        potentiometerOutput();
-        headlightsUpdate();
-        delay(TIME_DELAY);
+        engineUpdate(); //updating the engine states
+        potentiometerOutput(); //updating the potentiometer states
+        headlightsUpdate(); //updating the headlight states
+        delay(TIME_DELAY); //our delay interval
         }
 }
 
 
 //=====[Implementation of global functions]====================================
 
-void inputsInit() {
+void inputsInit() { //initializing inputs
     driverOccupancy.mode(PullDown);
 }
 
-void outputsInit() {
+void outputsInit() { //initializing outputs
     ignitionLED = OFF;
     headlightLED1 = OFF;
     headlightLED2 = OFF;
 }
 
-bool engineUpdate() {
+bool engineUpdate() { //updates the engine states
     if (ignitionButton) {
         if (driverOccupancy) {
             ignitionLED = ON;
-            return true;
+            return true; //we return true if the engine is on
         }
         else {
             ignitionLED = OFF;
-            return false;
+            return false; //we return false if engine is off
         }
     }
-    if (ignitionLED == ON) {
+    if (ignitionLED == ON) { //returning after ignition button is let go of
         return true;
     }
     else {
@@ -112,30 +112,30 @@ bool engineUpdate() {
     }
 }
 
-void headlightsUpdate() {
-    potentiometerR = potentiometer.read();
-    if (engineUpdate()) {
+void headlightsUpdate() { //updates the headlights
+    potentiometerR = potentiometer.read(); //assigns the potentiometer
+    if (engineUpdate()) { //checks to see if engine is on or not
         
-        if (potentiometerR <= POT_ON) {
+        if (potentiometerR <= POT_ON) { //on headlight state
             headlightLED1 = ON;
             headlightLED2 = ON;
         }
-        else if (potentiometerR < POT_OFF && potentiometerR > POT_ON) {
+        else if (potentiometerR < POT_OFF && potentiometerR > POT_ON) { //off headlight state, between on and auto
             headlightLED1 = OFF;
             headlightLED2 = OFF;
         }
-        else if (potentiometerR >= POT_OFF) {
-            if (lightLevel > DAY) { // Daytime arguement
-                accumulatedTime = accumulatedTime + TIME_DELAY;
-                if (accumulatedTime >= DAYLIGHT_DELAY) {
+        else if (potentiometerR >= POT_OFF) { //auto headlight state
+            if (lightLevel > DAY) { //daytime arguement
+                accumulatedTime = accumulatedTime + TIME_DELAY; //measure delay to turn off
+                if (accumulatedTime >= DAYLIGHT_DELAY) { //resets delay and turns off
                     headlightLED1 = OFF;
                     headlightLED2 = OFF;         
                     accumulatedTime = 0;   
                 }   
             }
-            else {
-                accumulatedTime = accumulatedTime + TIME_DELAY;
-                if (accumulatedTime >= DUSK_DELAY){
+            else { //nighttime arguement
+                accumulatedTime = accumulatedTime + TIME_DELAY; //measure delay to turn on
+                if (accumulatedTime >= DUSK_DELAY){ //resets delay and turns on
                     headlightLED1 = ON;
                     headlightLED2 = ON;
                     accumulatedTime >= 0;
@@ -144,13 +144,13 @@ void headlightsUpdate() {
             
         }
     }
-    else {
+    else { //turn off the headlights if the engine is off
         headlightLED1 = OFF;
         headlightLED2 = OFF;    
     }
 }
 
-void potentiometerOutput() {
+void potentiometerOutput() { //reads and prints out the potentiometer
     int stringLength;
     char str[100];
     potentiometerR = potentiometer.read();
